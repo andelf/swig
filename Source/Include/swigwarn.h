@@ -311,4 +311,6 @@
 
 /* -- User defined warnings (900 - 999) -- */
 
+#define WARN_C_TYPEMAP_CTYPE_UNDEF            720
+
 #endif

@@ -2463,6 +2463,24 @@ fi
 
 AC_SUBST(RBIN)
 
+# C module on Mac OS X tweaks
+case $host in
+*-*-darwin*)
+        C_LDSHARED="cc -dynamiclib"
+        CXX_LDSHARED="g++ -dynamiclib"
+        C_SO=".dylib"
+        ;;
+*)
+        C_LDSHARED='$(LDSHARED)'
+        CXX_LDSHARED='$(CXXSHARED)'
+        C_SO='$(SO)'
+        ;;
+esac
+
+AC_SUBST(C_LDSHARED)
+AC_SUBST(CXX_LDSHARED)
+AC_SUBST(C_SO)
+
 #----------------------------------------------------------------
 # Look for Go compilers
 #----------------------------------------------------------------
@@ -2821,6 +2839,12 @@ SKIP_UFFI=
     SKIP_UFFI="1"
 #fi
 AC_SUBST(SKIP_UFFI)
+
+SKIP_C=
+if test -x "$CC" || test -z "$CXX" ; then
+  SKIP_C="1"
+fi
+AC_SUBST(SKIP_C)
 
 SKIP_SCILAB=
 if test -z "$SCILAB"; then

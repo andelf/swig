@@ -1,5 +1,5 @@
-/* ----------------------------------------------------------------------------- 
- * This file is part of SWIG, which is licensed as a whole under version 3 
+/* -----------------------------------------------------------------------------
+ * This file is part of SWIG, which is licensed as a whole under version 3
  * (or any later version) of the GNU General Public License. Some additional
  * terms also apply to certain portions of SWIG. The full details of the SWIG
  * license and copyrights can be found in the LICENSE and COPYRIGHT files
@@ -49,6 +49,7 @@ extern "C" {
   Language *swig_cffi(void);
   Language *swig_uffi(void);
   Language *swig_r(void);
+  Language *swig_c(void);
   Language *swig_scilab(void);
   Language *swig_go(void);
   Language *swig_d(void);
@@ -88,6 +89,7 @@ static swig_module modules[] = {
   {"-php5", swig_php, 0},
   {"-pike", swig_pike, "Pike"},
   {"-python", swig_python, "Python"},
+  {"-c", swig_c, "C"},
   {"-r", swig_r, "R (aka GNU S)"},
   {"-ruby", swig_ruby, "Ruby"},
   {"-scilab", swig_scilab, "Scilab"},
