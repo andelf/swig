@@ -55,7 +55,7 @@ public:
    * C()
    * ----------------------------------------------------------------------------- */
 
-  C() : 
+  C() :
     empty_string(NewString("")),
     int_string(NewString("int")),
     create_object(0),
@@ -88,7 +88,7 @@ public:
       }
     }
 
-    if (!CPlusPlus) 
+    if (!CPlusPlus)
       except_flag = false;
 
     // add a symbol to the parser for conditional compilation
@@ -148,7 +148,7 @@ public:
   /* ---------------------------------------------------------------------
    * finish_destroy_object()
    * --------------------------------------------------------------------- */
-  
+
   String *finish_destroy_object() {
     String *s = destroy_object;
     Printf(s, "SWIG_free_SwigObj(object);\n}\n}\n}\n");
@@ -215,12 +215,12 @@ public:
     Printf(f_wrappers, "extern \"C\" {\n");
     Printf(f_wrappers, "#endif\n\n");
 
-    
+
     if (except_flag) {
       start_create_object();
       start_destroy_object();
     }
-    
+
     // emit code for children
     Language::top(n);
 
@@ -238,8 +238,8 @@ public:
       Printv(f_proxy_c, f_proxy_code_init, "\n", NIL);
       Printv(f_proxy_c, f_proxy_code_body, "\n", NIL);
       Printv(f_proxy_h, f_proxy_header, "\n#endif /* _", Char(module), "_proxy_H_ */\n", NIL);
-      Close(f_proxy_c);
-      Close(f_proxy_h);
+      // Close(f_proxy_c);
+      // Close(f_proxy_h);
       Delete(f_proxy_code_init);
       Delete(f_proxy_header);
     }
@@ -255,7 +255,7 @@ public:
     Delete(f_header);
     Delete(f_wrappers);
     Delete(f_init);
-    Close(f_runtime);
+    // Close(f_runtime);
     Delete(f_runtime);
 
     return SWIG_OK;
@@ -263,7 +263,7 @@ public:
 
   /* -----------------------------------------------------------------------
    * globalvariableHandler()
-   * ------------------------------------------------------------------------ */  
+   * ------------------------------------------------------------------------ */
 
   virtual int globalvariableHandler(Node *n) {
     if (!proxy_flag)
@@ -298,7 +298,7 @@ public:
     String *arg_list = NewString("");
     String *call = empty_string;
     String *cres = empty_string;
-    
+
     call = Swig_cfunction_call(Getattr(n, "name"), parms);
     cres = Swig_cresult(type, "result", call);
     Setattr(n, "wrap:action", cres);
@@ -405,14 +405,14 @@ ready:
       Delete(prefix);
     if (type)
       Delete(type);
-    
+
     return result;
   }
 
   /* ----------------------------------------------------------------------
    * functionWrapper()
    * ---------------------------------------------------------------------- */
-   
+
   virtual int functionWrapper(Node *n) {
     String *name = Copy(Getattr(n, "sym:name"));
     String *storage = Getattr(n, "storage");
@@ -430,13 +430,13 @@ ready:
     bool is_global = Cmp(Getattr(n, "c:globalfun"), "1") == 0;  // possibly no longer neede
     bool is_void_return = (SwigType_type(type) == T_VOID);
     bool return_object = false;
-    
+
     // create new function wrapper object
     Wrapper *wrapper = NewWrapper();
 
     if (!CPlusPlus) {
       // this is C function, we don't apply typemaps to it
-      
+
       // create new wrapper name
       wname = Swig_name_wrapper(name);
       Setattr(n, "wrap:name", wname);
@@ -486,8 +486,8 @@ ready:
     }
     else {
       // C++ function wrapper
-      
-      // mark the first parameter as object-struct      
+
+      // mark the first parameter as object-struct
       if (!is_global && storage && Cmp(storage, "static") != 0) {
         if ((Cmp(Getattr(n, "ismember"), "1") == 0) &&
           (Cmp(nodeType(n), "constructor") != 0)) {
@@ -499,7 +499,7 @@ ready:
           Setattr(parms, "c:stype", stype);
         }
       }
-      
+
       // mangle name if function is overloaded
       if (Getattr(n, "sym:overloaded")) {
         if (!Getattr(n, "copy_constructor")) {
@@ -512,11 +512,11 @@ ready:
           Append(name, over_suffix);
         }
       }
-      
+
       SwigType *tdtype = SwigType_typedef_resolve_all(type);
       if (tdtype)
         type = tdtype;
-        
+
       Setattr(n, "type", type);
 
       // create new wrapper name
@@ -534,7 +534,7 @@ ready:
         Printf(return_type, "%s", tm);
         // template handling
         Replaceall(return_type, "$tt", SwigType_lstr(type, 0));
-      } 
+      }
       else {
         Swig_warning(WARN_C_TYPEMAP_CTYPE_UNDEF, input_file, line_number, "No couttype typemap defined for %s\n", SwigType_str(type, 0));
       }
@@ -547,13 +547,13 @@ ready:
           SwigType *tdtype = SwigType_typedef_resolve_all(tm);
           if (tdtype)
             cpptype = tdtype;
-          else 
+          else
             cpptype = tm;
           if (SwigType_ismemberpointer(type))
             Wrapper_add_local(wrapper, "cppresult", SwigType_str(type, "cppresult"));
           Wrapper_add_local(wrapper, "cppresult", SwigType_str(cpptype, "cppresult"));
           return_object = checkAttribute(n, "tmap:cppouttype:retobj", "1");
-        } 
+        }
         else {
           Swig_warning(WARN_C_TYPEMAP_CTYPE_UNDEF, input_file, line_number, "No cppouttype typemap defined for %s\n", SwigType_str(type, 0));
         }
@@ -583,7 +583,7 @@ ready:
       // prepare function definition
       gencomma = 0;
       for (p = parms; p; ) {
-        
+
         while (p && checkAttribute(p, "tmap:in:numinputs", "0")) {
           p = Getattr(p, "tmap:in:next");
         }
@@ -598,7 +598,7 @@ ready:
         String *c_parm_type = NewString("");
         String *proxy_parm_type = NewString("");
         String *arg_name = NewString("");
-        
+
         SwigType *tdtype = SwigType_typedef_resolve_all(type);
         if (tdtype)
           type = tdtype;
@@ -608,13 +608,13 @@ ready:
         // set the appropriate type for parameter
         if ((tm = Getattr(p, "tmap:ctype"))) {
           Printv(c_parm_type, tm, NIL);
-          // template handling          
+          // template handling
           Replaceall(c_parm_type, "$tt", SwigType_lstr(type, 0));
         }
         else {
           Swig_warning(WARN_C_TYPEMAP_CTYPE_UNDEF, input_file, line_number, "No ctype typemap defined for %s\n", SwigType_str(type, 0));
         }
-        
+
         // use proxy-type for parameter if supplied
         String* stype = Getattr(p, "c:stype");
         if (stype) {
@@ -628,7 +628,7 @@ ready:
         Printv(wrapper->def, gencomma ? ", " : "", c_parm_type, " ", arg_name, NIL);
         Printv(proto, gencomma ? ", " : "", proxy_parm_type, " ", arg_name, NIL);
         gencomma = 1;
- 
+
         // apply typemaps for input parameter
         if (Cmp(nodeType(n), "destructor") == 0) {
           p = Getattr(p, "tmap:in:next");
@@ -643,7 +643,7 @@ ready:
           Swig_warning(WARN_TYPEMAP_IN_UNDEF, input_file, line_number, "Unable to use type %s as a function argument.\n", SwigType_str(type, 0));
           p = nextSibling(p);
         }
-        
+
         Delete(arg_name);
         Delete(proxy_parm_type);
         Delete(c_parm_type);
@@ -654,11 +654,11 @@ ready:
       if (Cmp(nodeType(n), "destructor") != 0) {
         // emit variables for holding parameters
         emit_parameter_variables(parms, wrapper);
-        
+
         // emit variable for holding function return value
         emit_return_variable(n, return_type, wrapper);
       }
-      
+
       // insert constraint checking
       for (p = parms; p; ) {
         if ((tm = Getattr(p, "tmap:check"))) {
@@ -676,13 +676,13 @@ ready:
       String *action = Getattr(n, "wrap:action");
       if (!action)
         action = NewString("");
-        
+
       String *cbase_name = Getattr(n, "c:base_name");
       if (cbase_name) {
         Replaceall(action, "arg1)->", NewStringf("(%s*)arg1)->", Getattr(n, "c:inherited_from")));
         Replaceall(action, Getattr(n, "name"), cbase_name);
       }
-      
+
       // handle special cases of cpp return result
       if (Cmp(nodeType(n), "constructor") != 0) {
         if (SwigType_isenum(SwigType_base(type))){
@@ -690,7 +690,7 @@ ready:
             Replaceall(action, "result =", "cppresult = (int)");
           else Replaceall(action, "result =", "cppresult = (int*)");
         }
-        else if (return_object && Getattr(n, "c:retval") && !SwigType_isarray(type) 
+        else if (return_object && Getattr(n, "c:retval") && !SwigType_isarray(type)
           && Cmp(Getattr(n, "storage"), "static") != 0) {
           // returning object by value
           String *str = SwigType_str(SwigType_add_reference(SwigType_base(type)), "_result_ref");
@@ -700,7 +700,7 @@ ready:
             action = NewStringf("{const %s = %s;", str, Swig_cmemberget_call(Getattr(n, "name"), type, 0, 0));
           }
           else {
-            String *call_str = NewStringf("{const %s = %s", str, 
+            String *call_str = NewStringf("{const %s = %s", str,
               SwigType_ispointer(SwigType_typedef_resolve_all(otype)) ? "*" : "");
             Replaceall(action, "result =", call_str);
             Delete(call_str);
@@ -714,10 +714,10 @@ ready:
         else
           Replaceall(action, "result =", "cppresult = ");
       }
-      
+
       // prepare action code to use, e.g. insert try-catch blocks
       action = emit_action(n);
-      
+
       Setattr(n, "type", type);
       // emit output typemap if needed
       if (!is_void_return && (Cmp(Getattr(n, "c:objstruct"), "1") != 0)) {
@@ -728,7 +728,7 @@ ready:
             Printf(wrapper->code, "\n");
         }
         else {
-          Swig_warning(WARN_TYPEMAP_OUT_UNDEF, input_file, line_number, "Unable to use return type %s in function %s.\n", SwigType_str(type, 0), Getattr(n, "name")); 
+          Swig_warning(WARN_TYPEMAP_OUT_UNDEF, input_file, line_number, "Unable to use return type %s in function %s.\n", SwigType_str(type, 0), Getattr(n, "name"));
         }
       }
       else {
@@ -740,7 +740,7 @@ ready:
         if (!except || (Cmp(except, "0") != 0))
           Printf(wrapper->code, "if (SWIG_exc.handled) {\nSWIG_rt_stack_pop();\nlongjmp(SWIG_rt_env, 1);\n}\n");
       }
-      
+
       // insert cleanup code
       for (p = parms; p; ) {
         if ((tm = Getattr(p, "tmap:freearg"))) {
@@ -812,7 +812,7 @@ ready:
     Setattr(new_node, "type", Copy(Getattr(node, "type")));
     Setattr(new_node, "decl", Copy(Getattr(node, "decl")));
     String *cif = Getattr(node, "c:inherited_from");
-    if (cif) 
+    if (cif)
       Setattr(new_node, "c:inherited_from", Copy(cif));
     return new_node;
   }
@@ -868,7 +868,7 @@ ready:
           // look for member variables and functions
           Node *node;
           for (node = firstChild(i.item); node; node = nextSibling(node)) {
-            if ((Cmp(Getattr(node, "kind"), "variable") == 0) 
+            if ((Cmp(Getattr(node, "kind"), "variable") == 0)
                 || (Cmp(Getattr(node, "kind"), "function") == 0)) {
               if ((Cmp(Getattr(node, "access"), "public") == 0)
                   && (Cmp(Getattr(node, "storage"), "static") != 0)) {
@@ -881,7 +881,7 @@ ready:
                       String *cif = Getattr(dupl_name_node, "c:inherited_from");
                       String *old_name = Getattr(dupl_name_node, "name");
                       if (cif && parent_name && (Cmp(cif, parent_name) != 0)) {
-                        Setattr(dupl_name_node, "name", NewStringf("%s%s", cif ? cif : "", old_name));                      
+                        Setattr(dupl_name_node, "name", NewStringf("%s%s", cif ? cif : "", old_name));
                         Setattr(dupl_name_node, "c:base_name", old_name);
                         Setattr(new_node, "name", NewStringf("%s%s", parent_name, old_name));
                         Setattr(new_node, "c:base_name", old_name);
@@ -898,7 +898,7 @@ ready:
                       Setattr(new_node, "sym:symtab", Getattr(n, "symtab"));
                       set_nodeType(new_node, "cdecl");
                       appendChild(n, new_node);
-                    } 
+                    }
               }
             }
           }
@@ -920,7 +920,7 @@ ready:
         int usetd = storage && Cmp(storage, "typedef") == 0;
         if (usetd)
           Append(f_proxy_header, "typedef struct {\n");
-        else 
+        else
           Printv(f_proxy_header, "struct ", name, " {\n", NIL);
         Node *node = firstChild(n);
         emit_c_struct_def(node);
@@ -1049,7 +1049,7 @@ ready:
     Printf(s, "result->typenames[%d] = 0;\n", i);
     Printf(s, "}\n");
   }
-  
+
   /* ---------------------------------------------------------------------
    * add_to_destroy_object()
    * --------------------------------------------------------------------- */
@@ -1172,9 +1172,9 @@ ready:
     else {
       Printf(code, "result = SWIG_create_object();\n");
     }
-    Printv(code, "result->obj = (void*) new ", classname, "((", classname, " const &)*arg1);\n", NIL);    
+    Printv(code, "result->obj = (void*) new ", classname, "((", classname, " const &)*arg1);\n", NIL);
 
-    Setattr(n, "wrap:action", code);    
+    Setattr(n, "wrap:action", code);
     functionWrapper(n);
 
     Delete(constr_name);
@@ -1227,11 +1227,11 @@ ready:
     else {
       Printv(code, "if (carg1->obj)\ndelete (", classtype, " *) (carg1->obj);\n", NIL);
     }
-    
+
     Setattr(n, "wrap:action", code);
-    
+
     functionWrapper(n);
-      
+
     Delete(p);
     Delete(destr_name);
     Delete(code);
@@ -1277,7 +1277,7 @@ ready:
     Printv(f_proxy_header, "#define ", name, " ", value, "\n", NIL);
     return SWIG_OK;
   }
-  
+
   /* ---------------------------------------------------------------------
    * classDeclaration()
    * --------------------------------------------------------------------- */
@@ -1288,7 +1288,7 @@ ready:
     String *prefix = 0;
     if (classtype) {
       prefix = Swig_scopename_prefix(classtype);
-      if (prefix) 
+      if (prefix)
         Printf(name, "%s_", Swig_name_mangle(prefix));
     }
     Append(name, Swig_name_mangle(Getattr(n, "sym:name")));
@@ -1297,7 +1297,7 @@ ready:
       Printv(f_header, "const char* Swig_typename_", name, " = \"", Getattr(n, "name"), "\";\n\n", NIL);
     return Language::classDeclaration(n);
   }
-  
+
   /* ---------------------------------------------------------------------
    * extendDirective()
    *
@@ -1308,7 +1308,7 @@ ready:
   virtual int extendDirective(Node *n) {
     return Language::extendDirective(n);
   }
-  
+
 };				/* class C */
 
 /* -----------------------------------------------------------------------------
@@ -1332,4 +1332,3 @@ C Options (available with -c)\n\
      -noproxy      - do not generate proxy interface\n\
      -noexcept     - do not generate exception handling code\n\
 \n";
-
